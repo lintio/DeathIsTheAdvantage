@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody2D))]
 public class MovementController : MonoBehaviour
 {
     // New Movement 3rd attempt
@@ -14,10 +13,10 @@ public class MovementController : MonoBehaviour
     [SerializeField] private LayerMask _groundLayer;
 
     [Header("Movement Variables")]
-    [SerializeField] private bool useForce = true;
-    [SerializeField] private float _movementAcceleration = 15;
-    [SerializeField] private float _maxMoveSpeed = 10;
-    [SerializeField] private float _groundLinearDrag = 8;
+    [SerializeField] private bool useForce;
+    [SerializeField] private float _movementAcceleration;
+    [SerializeField] private float _maxMoveSpeed;
+    [SerializeField] private float _groundLinearDrag;
     public float _horizontalDirection;
     private bool _changingDirection => (_rb.velocity.x > 0f && _horizontalDirection < 0f) || (_rb.velocity.x < 0f && _horizontalDirection > 0f);
 
@@ -26,7 +25,7 @@ public class MovementController : MonoBehaviour
     [SerializeField] private float _jumpForce = 12f;
     [SerializeField] private float _airLinearDrag = 2.5f;
     [Range(0, 5)]
-    [SerializeField] private int _extraJumps = 0;
+    [SerializeField] private int _extraJumps = 1;
     private int _extraJumpsValue;
 
     [Header("Better Jump Stats")]
@@ -39,6 +38,8 @@ public class MovementController : MonoBehaviour
     [SerializeField] private float _groundRaycastLenght = 0.2f;
     private bool _onGround;
 
+    public bool active = true;
+
     private void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
@@ -47,15 +48,17 @@ public class MovementController : MonoBehaviour
 
     private void Update()
     {
-        _horizontalDirection = GetInput().x;
-
-        if (Input.GetButtonDown("Jump") && (CheckCollisions() || _extraJumpsValue > 0))
+        if (active)
         {
-            Jump();
-        }       
+            _horizontalDirection = GetInput().x;
 
-        BetterJumps();
+            if (Input.GetButtonDown("Jump") && (CheckCollisions() || _extraJumpsValue > 0))
+            {
+                Jump();
+            }
 
+            BetterJumps();
+        }
     }
 
     private void FixedUpdate()
@@ -78,11 +81,14 @@ public class MovementController : MonoBehaviour
         return new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
     }
 
+    
+
     private void MoveCharacter()
     {
         if (useForce)
         {
             _rb.AddForce(new Vector2(_horizontalDirection, 0f) * _movementAcceleration);
+
             if (Mathf.Abs(_rb.velocity.x) > _maxMoveSpeed)
                 _rb.velocity = new Vector2(Mathf.Sign(_rb.velocity.x) * _maxMoveSpeed, _rb.velocity.y);
         }
@@ -95,16 +101,22 @@ public class MovementController : MonoBehaviour
     private void ApplyGroundLinearDrag()
     {
         if (Mathf.Abs(_horizontalDirection) < 0.4f || _changingDirection)
+        {
             _rb.drag = _groundLinearDrag;
+        }
         else
+        {
             _rb.drag = 0f;
+        }
     }
 
-    private void ApplyAirLinearDrag() {
+    private void ApplyAirLinearDrag()
+    {
         _rb.drag = _airLinearDrag;
     }
 
-    private void Jump() {
+    private void Jump()
+    {
         if (!_onGround)
             _extraJumpsValue--;
 
@@ -112,20 +124,22 @@ public class MovementController : MonoBehaviour
         _rb.AddForce(Vector2.up * _jumpForce, ForceMode2D.Impulse);
     }
 
-    private void BetterJumps() {
+    private void BetterJumps()
+    {
         if (_rb.velocity.y < 0)
+        {
             _rb.velocity += Vector2.up * Physics2D.gravity.y * (_fallMultiplier - 1) * Time.deltaTime;
+        }
         else if (_rb.velocity.y > 0 && !Input.GetButton("Jump"))
+        {
             _rb.velocity += Vector2.up * Physics2D.gravity.y * (_lowJumpFallMultiplier - 1) * Time.deltaTime;
+        }
     }
 
     private bool CheckCollisions()
     {
-        RaycastHit2D raycastHit = Physics2D.BoxCast(_boxCollider.bounds.center,
-                                                    _boxCollider.bounds.size,
-                                                    0f, Vector2.down,
-                                                    _groundRaycastLenght,
-                                                    _groundLayer);
+        RaycastHit2D raycastHit = Physics2D.BoxCast(_boxCollider.bounds.center, _boxCollider.bounds.size, 0f, Vector2.down, _groundRaycastLenght, _groundLayer);
+
         return raycastHit.collider != null;
     }
 }
