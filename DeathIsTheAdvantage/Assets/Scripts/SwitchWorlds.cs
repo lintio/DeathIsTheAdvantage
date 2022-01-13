@@ -23,18 +23,17 @@ public class SwitchWorlds : MonoBehaviour
     
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Q))
+        if (Input.GetKeyDown(KeyCode.Q)) // switch from Living to ghost
         {
-            // add cooldown check for switching to ghost mode
+            // add cooldown check for switching to ghost mode 
             
-            SwitchPlayer();
+            SwitchPlayer(); // switching from living to dead will send out a weak pulse that would alert the Reapers to your location to hamper the player if they try and use it to often in the same location
         }
-        if (Input.GetKeyDown(KeyCode.E) && !isLiving && !isPossesing)
+        if (Input.GetKeyDown(KeyCode.E) && !isLiving && !isPossesing) // Possess object
         {
-            // add cooldown check for switching to ghost mode
-            PossesItem();
+            PossesItem(); // Possesion should have some tole on your life force maybe send out a pulse that would alert the Reapers to your location
         }
-        else if (Input.GetKeyDown(KeyCode.E) && isPossesing)
+        else if (Input.GetKeyDown(KeyCode.E) && isPossesing) // Stop possesion of object
         {
             ReturnToBody();
         }
@@ -43,6 +42,7 @@ public class SwitchWorlds : MonoBehaviour
     private void ReturnToBody()
     {
         possesionTarget.GetComponent<MovementController>().active = false;
+        player.GetComponent<SpriteRenderer>().enabled = true;
         player.GetComponent<MovementController>().active = true;
         isPossesing = false;
     }
@@ -54,6 +54,7 @@ public class SwitchWorlds : MonoBehaviour
         {
             isPossesing = true;
             player.GetComponent<MovementController>().active = false;
+            player.GetComponent<SpriteRenderer>().enabled = false;
             possesionTarget.GetComponent<MovementController>().active = true;
         }
         else
