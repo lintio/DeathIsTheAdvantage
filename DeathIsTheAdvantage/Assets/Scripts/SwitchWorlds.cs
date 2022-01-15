@@ -18,8 +18,11 @@ public class SwitchWorlds : MonoBehaviour
 
     public float interactRange;
 
-    bool isLiving = true;
-    bool isPossesing = false;
+    public bool isLiving = true;
+    public bool isPossesing = false;
+
+    public bool inRangeP = false;
+    public bool inRangeR = false;
     
     void Update()
     {
@@ -37,6 +40,25 @@ public class SwitchWorlds : MonoBehaviour
         {
             ReturnToBody();
         }
+
+        if (!isLiving && canPosses() != null)
+        {
+            inRangeP = true;
+        }
+        else
+        {
+            inRangeP = false;
+        }
+
+        if (!isPossesing && !isLiving && CanRevive())
+        {
+            inRangeR = true;
+        }
+        else
+        {
+            inRangeR = false;
+        }
+
     }
 
     private void ReturnToBody()
