@@ -42,8 +42,13 @@ public class MovementController : MonoBehaviour
 
     private void Start()
     {
-        _rb = GetComponent<Rigidbody2D>();
-        _boxCollider = GetComponent<BoxCollider2D>();
+        
+    }
+
+    public void SetObject(Rigidbody2D rb2D, BoxCollider2D boxCollider2D)
+    {
+        _rb = rb2D;
+        _boxCollider = boxCollider2D;
     }
 
     private void Update()

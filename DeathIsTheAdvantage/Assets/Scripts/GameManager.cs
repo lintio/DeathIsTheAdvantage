@@ -11,6 +11,12 @@ public class GameManager : MonoBehaviour
     public TMP_Text hintText;
 
     // list of possetion particals
+    //possesable objects and there particals
+
+    
+
+    [SerializeField] List<GameObject> possesableObject = new List<GameObject>();
+
     public List<ParticleSystem> possesionParticals = new List<ParticleSystem>();
 
 
@@ -19,6 +25,20 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         
+    }
+        
+    public GameObject FindPossesableObjectInRange (Vector3 playerPos, float interactRange = 0.5f)
+    {
+        // should pass game manager the players pos then have all these checks on there
+        foreach (GameObject PossesableObject in possesableObject)
+        {
+            float distance = Vector3.Distance(playerPos, PossesableObject.transform.position);
+            if (distance <= interactRange)
+            {
+                return PossesableObject;
+            }
+        }
+        return null;
     }
 
     // Update is called once per frame

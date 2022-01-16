@@ -7,12 +7,16 @@ public class SwitchWorlds : MonoBehaviour
 {
     public GameObject pf_PlayerBody;
 
-    [SerializeField] GameObject player;
+    [SerializeField] GameManager gameManager;
+
+    SpriteRenderer spriteRenderer;
+    MovementController movementController;
+
     GameObject playerBody;
 
     GameObject possesionTarget;
 
-    [SerializeField] List<GameObject> possesableObject =  new List<GameObject>();
+    [SerializeField] List<GameObject> possesableObject =  new List<GameObject>(); // shoiuld be moved off the player and in to game manager
 
     public List<LayerMask> layers = new List<LayerMask>();
 
@@ -23,7 +27,13 @@ public class SwitchWorlds : MonoBehaviour
 
     public bool inRangeP = false;
     public bool inRangeR = false;
-    
+
+    private void Start()
+    {
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        movementController = GetComponent<MovementController>();
+    }
+
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Q)) // switch from Living to ghost
@@ -64,19 +74,19 @@ public class SwitchWorlds : MonoBehaviour
     private void ReturnToBody()
     {
         possesionTarget.GetComponent<MovementController>().active = false;
-        player.GetComponent<SpriteRenderer>().enabled = true;
-        player.GetComponent<MovementController>().active = true;
+        spriteRenderer.enabled = true;
+        movementController.active = true;
         isPossesing = false;
     }
 
     void PossesItem()
     {
-        possesionTarget = canPosses();
+        possesionTarget = gameManager.FindPossesableObjectInRange(transform.position, interactRange);
         if (possesionTarget != null)
         {
             isPossesing = true;
-            player.GetComponent<MovementController>().active = false;
-            player.GetComponent<SpriteRenderer>().enabled = false;
+            movementController.active = false;
+            spriteRenderer.enabled = false;
             possesionTarget.GetComponent<MovementController>().active = true;
         }
         else
@@ -87,9 +97,11 @@ public class SwitchWorlds : MonoBehaviour
 
     private GameObject canPosses()
     {
+
+        // should pass game manager the players pos then have all these checks on there
         foreach (GameObject PossesableObject in possesableObject)
         {
-            float distance = Vector3.Distance(player.transform.position, PossesableObject.transform.position);
+            float distance = Vector3.Distance(transform.position, PossesableObject.transform.position);
             if (distance <= interactRange)
             {
                 return PossesableObject;
@@ -111,7 +123,7 @@ public class SwitchWorlds : MonoBehaviour
         else if (isLiving)
         {
             gameObject.layer = LayerMask.NameToLayer("GhostPlayer");
-            playerBody = Instantiate(pf_PlayerBody, player.transform.position, Quaternion.identity);
+            playerBody = Instantiate(pf_PlayerBody, transform.position, Quaternion.identity);
             isLiving = false;
         }
         else
@@ -122,7 +134,7 @@ public class SwitchWorlds : MonoBehaviour
 
     bool CanRevive()
     {
-        float distance = Vector3.Distance(player.transform.position, playerBody.transform.position);
+        float distance = Vector3.Distance(transform.position, playerBody.transform.position);
         if (distance <= interactRange)
         {
             return true;
